@@ -25,7 +25,7 @@ class MainWidget(Widget):
     vertical_lines = []
 
     H_NO_LINES = 15
-    H_LINES_SPACING = .1  # percentage in screen height
+    H_LINES_SPACING = .5  # percentage in screen height
     horizontal_lines = []
 
     SPEED = .8
@@ -37,9 +37,12 @@ class MainWidget(Widget):
     current_speed_x = 0
 
     HITO_WIDTH = .1
-    HITO_HEIGHT = .035
+    HITO_HEIGHT = .1
     HITO_BASE_Y = 0.04
     hito = None
+
+    state_game_over = False
+    points = 1000
 
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
@@ -125,15 +128,20 @@ class MainWidget(Widget):
         self.update_horizontal_lines()
         self.update_hito()
 
-        speed_y = self.SPEED * self.height /100
-        self.current_offset_y += speed_y * time_factor
+        if not self.state_game_over:
+            speed_y = self.SPEED * self.height /100
+            self.current_offset_y += speed_y * time_factor
 
-        speed_x = self.current_speed_x * self.width / 100
-        self.current_offset_x += speed_x * time_factor
+            speed_x = self.current_speed_x * self.width / 100
+            self.current_offset_x += speed_x * time_factor
 
-        spacing_y = self.H_LINES_SPACING * self.height
-        if self.current_offset_y >= spacing_y:
-            self.current_offset_y -= spacing_y
+            spacing_y = self.H_LINES_SPACING * self.height
+            while self.current_offset_y >= spacing_y:
+                self.current_offset_y -= spacing_y
+
+        if not self.state_game_over and self.points < 100:
+            self.state_game_over = True
+            print("Game over!")
 
 
 class GalaxyApp(App):
