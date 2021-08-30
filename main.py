@@ -1,22 +1,28 @@
+import random
+
 from kivy.config import Config
+from kivy.lang import Builder
+from kivy.uix.relativelayout import RelativeLayout
 
 Config.set('graphics', 'width', '900')
 Config.set('graphics', 'height', '400')
 
-from kivy.core.window import Window
-
 from kivy import platform
-
+from kivy.core.window import Window
 from kivy.app import App
 from kivy.graphics import Line, Triangle
 from kivy.graphics.context_instructions import Color
-from kivy.properties import Clock, NumericProperty
+from kivy.properties import Clock, NumericProperty, ObjectProperty, StringProperty
 from kivy.uix.widget import Widget
 
+Builder.load_file("menu.kv")
 
-class MainWidget(Widget):
+
+class MainWidget(RelativeLayout):
     from transforms import transform, transform_2d, transform_perspective
     from user_actions import keyboard_closed, on_keyboard_up, on_keyboard_down, on_touch_up, on_touch_down
+
+    menu_widget = ObjectProperty()
     perspective_point_x = NumericProperty(0)
     perspective_point_y = NumericProperty(0)
 
@@ -42,7 +48,12 @@ class MainWidget(Widget):
     hito = None
 
     state_game_over = False
+    state_game_started = False
     points = 1000
+
+    menu_title = StringProperty("KANI WANI RUNNER - 蟹鰐")
+    menu_button_title = StringProperty("START")
+    score_txt = StringProperty()
 
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
@@ -128,7 +139,7 @@ class MainWidget(Widget):
         self.update_horizontal_lines()
         self.update_hito()
 
-        if not self.state_game_over:
+        if not self.state_game_over and self.state_game_started :
             speed_y = self.SPEED * self.height /100
             self.current_offset_y += speed_y * time_factor
 
@@ -142,6 +153,13 @@ class MainWidget(Widget):
         if not self.state_game_over and self.points < 100:
             self.state_game_over = True
             print("Game over!")
+
+
+    def on_menu_button_pressed(self):
+        print("button")
+        self.state_game_started = True
+        self.menu_widget.opacity = 0
+
 
 
 class GalaxyApp(App):
