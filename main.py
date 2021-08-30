@@ -8,17 +8,19 @@ from kivy.core.window import Window
 from kivy import platform
 
 from kivy.app import App
-from kivy.graphics import Line
+from kivy.graphics import Line, Triangle
 from kivy.graphics.context_instructions import Color
 from kivy.properties import Clock, NumericProperty
 from kivy.uix.widget import Widget
 
 
 class MainWidget(Widget):
+    from transforms import transform, transform_2d, transform_perspective
+    from user_actions import keyboard_closed, on_keyboard_up, on_keyboard_down, on_touch_up, on_touch_down
     perspective_point_x = NumericProperty(0)
     perspective_point_y = NumericProperty(0)
 
-    V_NO_LINES = 10
+    V_NO_LINES = 4
     V_LINES_SPACING = .25  # percentage in screen width
     vertical_lines = []
 
@@ -26,13 +28,18 @@ class MainWidget(Widget):
     H_LINES_SPACING = .1  # percentage in screen height
     horizontal_lines = []
 
-    SPEED = 4
+    SPEED = .8
     current_offset_y = 0
 
-    SPEED_X = 12
+    SPEED_X = 3.0
     current_offset_x = 0
 
     current_speed_x = 0
+
+    HITO_WIDTH = .1
+    HITO_HEIGHT = .035
+    HITO_BASE_Y = 0.04
+    hito = None
 
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
@@ -40,54 +47,36 @@ class MainWidget(Widget):
         self.init_vertical_lines()
         self.init_horizontal_lines()
 
+        self.init_hito()
+
         if self.is_desktop():
             self._keyboard = Window.request_keyboard(self.keyboard_closed, self)
             self._keyboard.bind(on_key_down=self.on_keyboard_down)
             self._keyboard.bind(on_key_up=self.on_keyboard_up)
-        print(self.is_desktop())
-        print(platform)
 
         Clock.schedule_interval(self.update, 1.0 / 60)
 
-    def keyboard_closed(self):
-        self._keyboard_unbind(on_key_down=self._on_keyboard_down)
-        self._keyboard = None
-
-    def on_keyboard_down(self, keyboard, keycode, test, modifiers):
-        if keycode[1] == 'left':
-            self.current_speed_x = self.SPEED_X
-        elif keycode[1] == 'right':
-            self.current_speed_x = -self.SPEED_X
-        return True
-
-    def on_keyboard_up(self, keyboard, keycode):
-        self.current_speed_x = 0
-        return True
-
-    def is_desktop(self):
+    @staticmethod
+    def is_desktop():
         if platform in ('linux', 'win', 'macosx'):
             return True
         return False
 
-    def on_parent(self, widget, parent):
-        # print("On parent w: {} h: {}", str(self.width), str(self.height))
-        pass
+    def init_hito(self):
+        with self.canvas:
+            Color(0,1,0)
+            self.hito = Triangle()
 
-    def on_size(self, *args):
-        # print("On size w: {} h: {}", str(self.width), str(self.height))
-        # self.perspective_point_x = self.width/2
-        # self.perspective_point_y = self.height * 0.75
-        # self.update_vertical_lines()
-        # self.update_horizontal_lines()
-        pass
+    def update_hito(self):
+        center_x = self.width/2
+        base_y = self.HITO_BASE_Y * self.height
+        hito_half_width = self.HITO_WIDTH * self.width /2
+        hito_height = self.HITO_HEIGHT * self.height
+        x1, y1 = self.transform(center_x - hito_half_width, base_y)
+        x2, y2 = self.transform(center_x, base_y + hito_height)
+        x3, y3 = self.transform(center_x + hito_half_width, base_y)
 
-    def on_perspective_point_x(self, widget, value):
-        # print("p_x: {}", str(value))
-        pass
-
-    def on_perspective_point_y(self, widget, value):
-        # print("p_y: {}", str(value))
-        pass
+        self.hito.points = [ x1, y1, x2, y2, x3, y3 ]
 
     def init_vertical_lines(self):
         with self.canvas:
@@ -129,49 +118,22 @@ class MainWidget(Widget):
             x2, y2 = self.transform(xmax, line_y)
             self.horizontal_lines[i].points = [x1, y1, x2, y2]
 
-    def transform(self, x, y):
-        # return self.transform_2d(x,y)
-        return self.transform_perspective(x, y)
-
-    @staticmethod
-    def transform_2d(x, y):
-        return int(x), int(y)
-
-    def transform_perspective(self, x, y):
-        lin_y = y * self.perspective_point_y / self.height
-        if lin_y > self.perspective_point_y:
-            lin_y = self.perspective_point_y
-
-        diff_x = x - self.perspective_point_x
-        diff_y = self.perspective_point_y - lin_y
-        factor_y = diff_y / self.perspective_point_y
-        factor_y = pow(factor_y, 4)
-
-        tr_x = self.perspective_point_x + diff_x * factor_y
-        tr_y = self.perspective_point_y - factor_y * self.perspective_point_y
-
-        return int(tr_x), int(tr_y)
-
-    def on_touch_down(self, touch):
-        if touch.x < self.width / 2:
-            self.current_speed_x = self.SPEED_X
-        else:
-            self.current_speed_x = -self.SPEED_X
-
-    def on_touch_up(self, touch):
-        self.current_speed_x = 0
 
     def update(self, dt):
         time_factor = dt * 60
         self.update_vertical_lines()
         self.update_horizontal_lines()
-        self.current_offset_y += self.SPEED * time_factor
+        self.update_hito()
+
+        speed_y = self.SPEED * self.height /100
+        self.current_offset_y += speed_y * time_factor
+
+        speed_x = self.current_speed_x * self.width / 100
+        self.current_offset_x += speed_x * time_factor
 
         spacing_y = self.H_LINES_SPACING * self.height
         if self.current_offset_y >= spacing_y:
             self.current_offset_y -= spacing_y
-
-        self.current_offset_x += self.current_speed_x * time_factor
 
 
 class GalaxyApp(App):
