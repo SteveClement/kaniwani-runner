@@ -51,8 +51,8 @@ class MainWidget(RelativeLayout):
     state_game_started = False
     points = 1000
 
-    menu_title = StringProperty("KANI WANI RUNNER - 蟹鰐")
-    menu_button_title = StringProperty("START")
+    menu_title = StringProperty("KaniWani Runner - 蟹鰐ランナー")
+    menu_button_title = StringProperty(" START\nスタート")
     score_txt = StringProperty()
 
     def __init__(self, **kwargs):
