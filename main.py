@@ -1,8 +1,9 @@
 from kivy.config import Config
-from kivy.core.window import Window
 
 Config.set('graphics', 'width', '900')
 Config.set('graphics', 'height', '400')
+
+from kivy.core.window import Window
 
 from kivy import platform
 
