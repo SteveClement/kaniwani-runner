@@ -1,11 +1,9 @@
-import random
-
 from kivy.config import Config
-from kivy.lang import Builder
-from kivy.uix.relativelayout import RelativeLayout
-
 Config.set('graphics', 'width', '900')
 Config.set('graphics', 'height', '400')
+
+from kivy.lang import Builder
+from kivy.uix.relativelayout import RelativeLayout
 
 from kivy import platform
 from kivy.core.window import Window
@@ -13,7 +11,8 @@ from kivy.app import App
 from kivy.graphics import Line, Triangle
 from kivy.graphics.context_instructions import Color
 from kivy.properties import Clock, NumericProperty, ObjectProperty, StringProperty
-from kivy.uix.widget import Widget
+
+import random
 
 Builder.load_file("menu.kv")
 
@@ -22,25 +21,38 @@ class MainWidget(RelativeLayout):
     from transforms import transform, transform_2d, transform_perspective
     from user_actions import keyboard_closed, on_keyboard_up, on_keyboard_down, on_touch_up, on_touch_down
 
+    view = "2ds"
+
     menu_widget = ObjectProperty()
     perspective_point_x = NumericProperty(0)
     perspective_point_y = NumericProperty(0)
 
-    V_NO_LINES = 4
-    V_LINES_SPACING = .25  # percentage in screen width
+
+    if view == "2d":
+        V_NO_LINES = 4
+        V_LINES_SPACING = .25  # percentage in screen width
+
+        H_NO_LINES = 15
+        H_LINES_SPACING = .5  # percentage in screen height
+
+        SPEED = .6
+    else:
+        V_NO_LINES = 4
+        V_LINES_SPACING = .25  # percentage in screen width
+
+        H_NO_LINES = 15
+        H_LINES_SPACING = .2  # percentage in screen height
+
+        SPEED = .8
+
+    horizontal_lines = []
     vertical_lines = []
 
-    H_NO_LINES = 15
-    H_LINES_SPACING = .5  # percentage in screen height
-    horizontal_lines = []
-
-    SPEED = .8
     current_offset_y = 0
+    current_offset_x = 0
+    current_speed_x = 0
 
     SPEED_X = 3.0
-    current_offset_x = 0
-
-    current_speed_x = 0
 
     HITO_WIDTH = .1
     HITO_HEIGHT = .1
@@ -51,7 +63,7 @@ class MainWidget(RelativeLayout):
     state_game_started = False
     points = 1000
 
-    menu_title = StringProperty("KaniWani Runner - 蟹鰐ランナー")
+    menu_title = StringProperty("KaniWani Runner \n 蟹鰐ランナー")
     menu_button_title = StringProperty(" START\nスタート")
     score_txt = StringProperty()
 

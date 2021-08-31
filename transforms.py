@@ -1,6 +1,8 @@
 def transform(self, x, y):
-    return self.transform_2d(x,y)
-    # return self.transform_perspective(x, y)
+    if self.view == "2d":
+        return self.transform_2d(x,y)
+    else:
+        return self.transform_perspective(x, y)
 
 
 def transform_2d(self, x, y):
