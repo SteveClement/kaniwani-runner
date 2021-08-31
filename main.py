@@ -1,4 +1,5 @@
 from kivy.config import Config
+
 Config.set('graphics', 'width', '900')
 Config.set('graphics', 'height', '400')
 
@@ -14,7 +15,11 @@ from kivy.properties import Clock, NumericProperty, ObjectProperty, StringProper
 
 import random
 
+debug = True
+
 Builder.load_file("menu.kv")
+
+if debug: Builder.load_file("debug.kv")
 
 
 class MainWidget(RelativeLayout):
@@ -24,9 +29,10 @@ class MainWidget(RelativeLayout):
     view = "2ds"
 
     menu_widget = ObjectProperty()
+    debug_widget = ObjectProperty()
+
     perspective_point_x = NumericProperty(0)
     perspective_point_y = NumericProperty(0)
-
 
     if view == "2d":
         V_NO_LINES = 4
@@ -65,6 +71,10 @@ class MainWidget(RelativeLayout):
 
     menu_title = StringProperty("KaniWani Runner \n 蟹鰐ランナー")
     menu_button_title = StringProperty(" START\nスタート")
+
+    debug_title = StringProperty("debug")
+    debug_button_title = StringProperty("hide")
+
     score_txt = StringProperty()
 
     def __init__(self, **kwargs):
@@ -90,19 +100,19 @@ class MainWidget(RelativeLayout):
 
     def init_hito(self):
         with self.canvas:
-            Color(0,1,0)
+            Color(0, 1, 0)
             self.hito = Triangle()
 
     def update_hito(self):
-        center_x = self.width/2
+        center_x = self.width / 2
         base_y = self.HITO_BASE_Y * self.height
-        hito_half_width = self.HITO_WIDTH * self.width /2
+        hito_half_width = self.HITO_WIDTH * self.width / 2
         hito_height = self.HITO_HEIGHT * self.height
         x1, y1 = self.transform(center_x - hito_half_width, base_y)
         x2, y2 = self.transform(center_x, base_y + hito_height)
         x3, y3 = self.transform(center_x + hito_half_width, base_y)
 
-        self.hito.points = [ x1, y1, x2, y2, x3, y3 ]
+        self.hito.points = [x1, y1, x2, y2, x3, y3]
 
     def init_vertical_lines(self):
         with self.canvas:
@@ -122,7 +132,6 @@ class MainWidget(RelativeLayout):
         offset = -int(self.V_NO_LINES / 2) + 0.5
         for i in range(0, self.V_NO_LINES):
             line_x = int(center_line_x + offset * spacing + self.current_offset_x)
-
             x1, y1 = self.transform(line_x, 0)
             x2, y2 = self.transform(line_x, self.height)
             self.vertical_lines[i].points = [x1, y1, x2, y2]
@@ -139,11 +148,9 @@ class MainWidget(RelativeLayout):
 
         for i in range(0, self.H_NO_LINES):
             line_y = i * spacing_y - self.current_offset_y
-
             x1, y1 = self.transform(xmin, line_y)
             x2, y2 = self.transform(xmax, line_y)
             self.horizontal_lines[i].points = [x1, y1, x2, y2]
-
 
     def update(self, dt):
         time_factor = dt * 60
@@ -151,13 +158,11 @@ class MainWidget(RelativeLayout):
         self.update_horizontal_lines()
         self.update_hito()
 
-        if not self.state_game_over and self.state_game_started :
-            speed_y = self.SPEED * self.height /100
+        if not self.state_game_over and self.state_game_started:
+            speed_y = self.SPEED * self.height / 100
             self.current_offset_y += speed_y * time_factor
-
             speed_x = self.current_speed_x * self.width / 100
             self.current_offset_x += speed_x * time_factor
-
             spacing_y = self.H_LINES_SPACING * self.height
             while self.current_offset_y >= spacing_y:
                 self.current_offset_y -= spacing_y
@@ -166,16 +171,19 @@ class MainWidget(RelativeLayout):
             self.state_game_over = True
             print("Game over!")
 
-
     def on_menu_button_pressed(self):
-        print("button")
+        print("start pressed")
         self.state_game_started = True
         self.menu_widget.opacity = 0
 
+    def on_debug_button_pressed(self):
+        print("debug pressed")
+        self.debug = False
+        self.debug_widget.opacity = 0
 
 
-class GalaxyApp(App):
+class RunnerApp(App):
     pass
 
 
-GalaxyApp().run()
+RunnerApp().run()

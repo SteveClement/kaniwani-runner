@@ -1,4 +1,5 @@
 #:import menu menu
+#:import debug debug
 
 MainWidget:
 
@@ -8,10 +9,13 @@ MainWidget:
             size: self.size
             source: 'images/bg2.jpg'
     menu_widget: menu_widget
+    debug_widget: debug_widget
     perspective_point_x: self.width/2
     perspective_point_y: self.height*0.75
     MenuWidget:
         id: menu_widget
+    DebugWidget:
+        id: debug_widget
     Label:
         text: root.score_txt
         font_size: dp(20)
