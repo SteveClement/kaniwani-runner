@@ -4,17 +4,29 @@
             rgba: 0, 0, 0, 0
         Rectangle:
             size: self.size
+        Line:
+            width: 5
+            rectangle: self.x, self.y, self.width, self.height
     Label:
         font_size: dp(13)
         #font_name: 'fonts/Sackers-Gothic-Std-Light.ttf'
         font_name: 'fonts/ipam.ttf'
         text: root.parent.debug_title
-        pos_hint: { "center_x": .7, "center_y": .9}
+        pos_hint: { "center_x": .9, "center_y": .9}
+    Label:
+        font_size: dp(13)
+        #font_name: 'fonts/Sackers-Gothic-Std-Light.ttf'
+        font_name: 'fonts/ipam.ttf'
+        text: root.parent.hito_dbg
+        pos_hint: { "center_x": .9, "center_y": .85}
+
+
+    # hide button
     Button:
         font_size: dp(13)
         font_name: 'fonts/Eurostile.ttf'
         text: root.parent.debug_button_title
-        pos_hint: { "center_x": .9, "center_y": .9}
+        pos_hint: { "center_x": .9, "center_y": .7}
         size_hint: .03, .05
         on_press: root.parent.on_debug_button_pressed()
         background_normal: ''

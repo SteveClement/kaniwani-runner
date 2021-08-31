@@ -1,4 +1,5 @@
 from kivy.config import Config
+from kivy.core.audio import SoundLoader
 
 Config.set('graphics', 'width', '900')
 Config.set('graphics', 'height', '400')
@@ -9,10 +10,11 @@ from kivy.uix.relativelayout import RelativeLayout
 from kivy import platform
 from kivy.core.window import Window
 from kivy.app import App
-from kivy.graphics import Line, Triangle
+from kivy.graphics import Line, Quad, Triangle
 from kivy.graphics.context_instructions import Color
 from kivy.properties import Clock, NumericProperty, ObjectProperty, StringProperty
 
+import numpy as np
 import random
 
 debug = True
@@ -26,7 +28,7 @@ class MainWidget(RelativeLayout):
     from transforms import transform, transform_2d, transform_perspective
     from user_actions import keyboard_closed, on_keyboard_up, on_keyboard_down, on_touch_up, on_touch_down
 
-    view = "2ds"
+    view = "2d"
 
     menu_widget = ObjectProperty()
     debug_widget = ObjectProperty()
@@ -57,6 +59,11 @@ class MainWidget(RelativeLayout):
     current_offset_y = 0
     current_offset_x = 0
     current_speed_x = 0
+    current_y_loop = 0
+
+    tile = None
+    ti_x = 0
+    ti_y = 0
 
     SPEED_X = 3.0
 
@@ -64,6 +71,7 @@ class MainWidget(RelativeLayout):
     HITO_HEIGHT = .1
     HITO_BASE_Y = 0.04
     hito = None
+    hito_coordinates = [(0, 0), (0,0), (0,0)]
 
     state_game_over = False
     state_game_started = False
@@ -76,12 +84,18 @@ class MainWidget(RelativeLayout):
     debug_button_title = StringProperty("hide")
 
     score_txt = StringProperty()
+    hito_dbg = StringProperty()
+
+    bgm_begin = None
+    vol = 0
 
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
         # print("Init w: {} h: {}", str(self.width), str(self.height))
+        self.init_audio()
         self.init_vertical_lines()
         self.init_horizontal_lines()
+        self.init_tiles()
 
         self.init_hito()
 
@@ -91,6 +105,20 @@ class MainWidget(RelativeLayout):
             self._keyboard.bind(on_key_up=self.on_keyboard_up)
 
         Clock.schedule_interval(self.update, 1.0 / 60)
+
+    def init_audio(self):
+        self.bgm_begin = SoundLoader.load("bgm/Annex Japanese Trap.mp3")
+        self.bgm_begin.volume = 1
+
+    def reset_game(self):
+        self.current_offset_y = 0
+        self.current_y_loop = 0
+        self.current_speed_x = 0
+#        self.tile_coordinates = []
+        self.score_txt = f"Score: {self.current_y_loop}"
+#        self.pre_fill_tiles_coordinates()
+#        self.generate_tiles_coordinates()
+        self.state_game_over = False
 
     @staticmethod
     def is_desktop():
@@ -108,11 +136,36 @@ class MainWidget(RelativeLayout):
         base_y = self.HITO_BASE_Y * self.height
         hito_half_width = self.HITO_WIDTH * self.width / 2
         hito_height = self.HITO_HEIGHT * self.height
-        x1, y1 = self.transform(center_x - hito_half_width, base_y)
-        x2, y2 = self.transform(center_x, base_y + hito_height)
-        x3, y3 = self.transform(center_x + hito_half_width, base_y)
+        self.hito_coordinates[0] = (center_x - hito_half_width, base_y)
+        self.hito_coordinates[1] = (center_x, base_y + hito_height)
+        self.hito_coordinates[2] = (center_x + hito_half_width, base_y)
+        x1, y1 = self.transform(*self.hito_coordinates[0])
+        x2, y2 = self.transform(*self.hito_coordinates[1])
+        x3, y3 = self.transform(*self.hito_coordinates[2])
 
         self.hito.points = [x1, y1, x2, y2, x3, y3]
+
+    def check_hito_collision(self):
+        #for i in range(0, len(self.tiles_coordinates)):
+        #    ti_x, ti_y = self.tiles_coordinates[i]
+        #    if ti_y > self.current_y_loop + 1:
+        #        return False
+        if self.check_hito_collision_with_tile(ti_x=1, ti_y=1):
+            return True
+
+    def check_hito_collision_with_tile(self, ti_x, ti_y):
+        #xmin, ymin = self.get_tile_coordinates(ti_x, ti_y)
+        #xmax, ymax = self.get_tile_coordinates(ti_x + 1, ti_y + 1)
+        for i in range(0,3):
+            px, py = self.hito_coordinates[i]
+        #        return True
+        return False
+
+
+    def init_tiles(self):
+        with self.canvas:
+            Color(1, 1, 1)
+            self.tile = Quad()
 
     def init_vertical_lines(self):
         with self.canvas:
@@ -126,28 +179,41 @@ class MainWidget(RelativeLayout):
             for i in range(0, self.H_NO_LINES):
                 self.horizontal_lines.append(Line())
 
-    def update_vertical_lines(self):
-        center_line_x = int(self.width / 2)
+    def get_line_x_from_index(self, index):
+        center_line_x = self.perspective_point_x
         spacing = self.V_LINES_SPACING * self.width
-        offset = -int(self.V_NO_LINES / 2) + 0.5
-        for i in range(0, self.V_NO_LINES):
-            line_x = int(center_line_x + offset * spacing + self.current_offset_x)
+        offset = index - 0.5
+        line_x = center_line_x + offset*spacing + self.current_offset_x
+        return line_x
+
+    def get_line_y_from_index(self, index):
+        spacing_y = self.H_LINES_SPACING * self.height
+        line_y = index * spacing_y - self.current_offset_y
+        return line_y
+
+    def update_vertical_lines(self):
+        start_index = -int(self.V_NO_LINES/2)+1
+        for i in range(start_index, start_index+self.V_NO_LINES):
+            line_x = self.get_line_x_from_index(i)
             x1, y1 = self.transform(line_x, 0)
             x2, y2 = self.transform(line_x, self.height)
             self.vertical_lines[i].points = [x1, y1, x2, y2]
-            offset += 1
+
+    def get_tile_coordinates(self, ti_x, ti_y):
+        x = self.get_line_x_from_index(ti_x)
+        y = self.get_line_y_from_index(ti_y)
+        return x,y
+
 
     def update_horizontal_lines(self):
-        center_line_x = int(self.width / 2)
-        spacing = self.V_LINES_SPACING * self.width
-        offset = -int(self.V_NO_LINES / 2) + 0.5
+        start_index = -int(self.V_NO_LINES/2)+1
+        end_index = start_index + self.V_NO_LINES-1
 
-        xmin = center_line_x + offset * spacing + self.current_offset_x
-        xmax = center_line_x - offset * spacing + self.current_offset_x
-        spacing_y = self.H_LINES_SPACING * self.height
+        xmin = self.get_line_x_from_index(start_index)
+        xmax = self.get_line_x_from_index(end_index)
 
         for i in range(0, self.H_NO_LINES):
-            line_y = i * spacing_y - self.current_offset_y
+            line_y = self.get_line_y_from_index(i)
             x1, y1 = self.transform(xmin, line_y)
             x2, y2 = self.transform(xmax, line_y)
             self.horizontal_lines[i].points = [x1, y1, x2, y2]
@@ -166,20 +232,36 @@ class MainWidget(RelativeLayout):
             spacing_y = self.H_LINES_SPACING * self.height
             while self.current_offset_y >= spacing_y:
                 self.current_offset_y -= spacing_y
+                self.current_y_loop += 1
+                self.score_txt = f"Score: {self.current_y_loop}"
 
         if not self.state_game_over and self.points < 100:
             self.state_game_over = True
             print("Game over!")
 
+        if not self.check_hito_collision():
+            print("GameOver")
+
+        self.hito_dbg = f"hito x:{int(self.current_offset_x)}"
+
+
     def on_menu_button_pressed(self):
         print("start pressed")
         self.state_game_started = True
         self.menu_widget.opacity = 0
+        if self.state_game_over:
+            #self.sound_restart.play()
+            pass
+        else:
+            self.bgm_begin.play()
 
     def on_debug_button_pressed(self):
         print("debug pressed")
         self.debug = False
         self.debug_widget.opacity = 0
+        for vol in np.arange(1, 0, -0.1):
+            self.bgm_begin.volume = float(vol)
+        self.bgm_begin.stop()
 
 
 class RunnerApp(App):
