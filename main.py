@@ -28,7 +28,7 @@ class MainWidget(RelativeLayout):
     from transforms import transform, transform_2d, transform_perspective
     from user_actions import keyboard_closed, on_keyboard_up, on_keyboard_down, on_touch_up, on_touch_down
 
-    view = "2ds"
+    view = "2d"
 
     menu_widget = ObjectProperty()
     debug_widget = ObjectProperty()
@@ -51,7 +51,7 @@ class MainWidget(RelativeLayout):
         H_NO_LINES = 15
         H_LINES_SPACING = .2  # percentage in screen height
 
-        SPEED = .8
+        SPEED = .5
 
     horizontal_lines = []
     vertical_lines = []
@@ -75,7 +75,8 @@ class MainWidget(RelativeLayout):
 
     state_game_over = False
     state_game_started = False
-    points = 1000
+
+    points = 0
 
     menu_title = StringProperty("KaniWani Runner \n 蟹鰐ランナー")
     menu_button_title = StringProperty(" START\nスタート")
@@ -135,18 +136,32 @@ class MainWidget(RelativeLayout):
                 self.horizontal_lines.append(Line())
 
     def generate_tiles_coordinates(self):
-        for i in range(0, self.NO_TILES):
-            self.tiles_coordinates.append((0, i))
+        last_y = 0
+
+        for i in range(len(self.tiles_coordinates)-1, -1, -1):
+            if self.tiles_coordinates[i][1] < self.current_y_loop:
+                del self.tiles_coordinates[i]
+
+        if len(self.tiles_coordinates) > 0:
+            last_coordinates = self.tiles_coordinates[-1]
+            last_y = last_coordinates[1]+1
+
+        for i in range(len(self.tiles_coordinates), self.NO_TILES):
+            r = random.randint(-1,1)
+            self.tiles_coordinates.append((r, last_y))
+            last_y += 1
 
     def reset_game(self):
         self.current_offset_y = 0
         self.current_y_loop = 0
         self.current_speed_x = 0
-#        self.tile_coordinates = []
+        self.current_offset_x = 0
+        self.tiles_coordinates = []
         self.score_txt = f"Score: {self.current_y_loop}"
 #        self.pre_fill_tiles_coordinates()
-#        self.generate_tiles_coordinates()
+        self.generate_tiles_coordinates()
         self.state_game_over = False
+        self.points = 0
 
     @staticmethod
     def is_desktop():
@@ -159,6 +174,7 @@ class MainWidget(RelativeLayout):
         base_y = self.HITO_BASE_Y * self.height
         hito_half_width = self.HITO_WIDTH * self.width / 2
         hito_height = self.HITO_HEIGHT * self.height
+
         self.hito_coordinates[0] = (center_x - hito_half_width, base_y)
         self.hito_coordinates[1] = (center_x, base_y + hito_height)
         self.hito_coordinates[2] = (center_x + hito_half_width, base_y)
@@ -169,19 +185,21 @@ class MainWidget(RelativeLayout):
         self.hito.points = [x1, y1, x2, y2, x3, y3]
 
     def check_hito_collision(self):
-        #for i in range(0, len(self.tiles_coordinates)):
-        #    ti_x, ti_y = self.tiles_coordinates[i]
-        #    if ti_y > self.current_y_loop + 1:
-        #        return False
-        if self.check_hito_collision_with_tile(ti_x=1, ti_y=1):
-            return True
+        for i in range(0, len(self.tiles_coordinates)):
+            ti_x, ti_y = self.tiles_coordinates[i]
+            if ti_y > self.current_y_loop + 1:
+                return False
+            if self.check_hito_collision_with_tile(ti_x, ti_y):
+                return False
+        return True
 
     def check_hito_collision_with_tile(self, ti_x, ti_y):
         xmin, ymin = self.get_tile_coordinates(ti_x, ti_y)
         xmax, ymax = self.get_tile_coordinates(ti_x + 1, ti_y + 1)
         for i in range(0,3):
             px, py = self.hito_coordinates[i]
-        #        return True
+            if xmin <= px <= xmax and ymin <= py <= ymax:
+                return True
         return False
 
     def get_line_x_from_index(self, index):
@@ -227,7 +245,6 @@ class MainWidget(RelativeLayout):
             x2, y2 = self.transform(line_x, self.height)
             self.vertical_lines[i].points = [x1, y1, x2, y2]
 
-
     def update_horizontal_lines(self):
         start_index = -int(self.V_NO_LINES/2)+1
         end_index = start_index + self.V_NO_LINES-1
@@ -249,6 +266,7 @@ class MainWidget(RelativeLayout):
         self.update_hito()
 
         if not self.state_game_over and self.state_game_started:
+            print("running")
             speed_y = self.SPEED * self.height / 100
             self.current_offset_y += speed_y * time_factor
             speed_x = self.current_speed_x * self.width / 100
@@ -257,27 +275,37 @@ class MainWidget(RelativeLayout):
             while self.current_offset_y >= spacing_y:
                 self.current_offset_y -= spacing_y
                 self.current_y_loop += 1
+                self.generate_tiles_coordinates()
                 self.score_txt = f"Score: {self.current_y_loop}"
+                self.points = self.current_y_loop
 
-        if not self.state_game_over and self.points < 100:
+        if not self.state_game_over and self.points > 2:
             self.state_game_over = True
-            print("Game over!")
+            self.menu_title = "  Game Over!\nゲームオーバー"
+            self.menu_button_title = "  Restart?\n再開しますか"
+            self.menu_widget.opacity = 1
 
         if not self.check_hito_collision():
-            print("GameOver")
+            print("Touched a tile")
 
         self.hito_dbg = f"hito x:{int(self.current_offset_x)}"
 
-
     def on_menu_button_pressed(self):
-        print("start pressed")
-        self.state_game_started = True
-        self.menu_widget.opacity = 0
         if self.state_game_over:
-            #self.sound_restart.play()
+            # Play restart sound if wanted
             pass
         else:
-            self.bgm_begin.play()
+            # play game start sound if wanted
+            pass
+        self.bgm_begin.play()
+        self.reset_game()
+        self.state_game_started = True
+        self.menu_widget.opacity = 0
+
+    def play_game_over_sound(self, dt):
+        if self.state_game_over:
+            pass
+            #self.sound_gameover.play()
 
     def on_debug_button_pressed(self):
         print("debug pressed")
