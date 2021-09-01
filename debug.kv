@@ -7,18 +7,45 @@
         Line:
             width: 5
             rectangle: self.x, self.y, self.width, self.height
+
+    # Debug label
     Label:
         font_size: dp(13)
         #font_name: 'fonts/Sackers-Gothic-Std-Light.ttf'
         font_name: 'fonts/ipam.ttf'
         text: root.parent.debug_title
-        pos_hint: { "center_x": .9, "center_y": .9}
+        pos_hint: { "center_x": 0.93, "center_y": .9}
+        color: 1, .3, .4, .85
+
+    # hito debug
     Label:
         font_size: dp(13)
         #font_name: 'fonts/Sackers-Gothic-Std-Light.ttf'
         font_name: 'fonts/ipam.ttf'
         text: root.parent.hito_dbg
-        pos_hint: { "center_x": .9, "center_y": .85}
+        pos_hint: { "center_x": .95, "center_y": .85}
+
+    # hito debug
+    Label:
+        font_size: dp(13)
+        #font_name: 'fonts/Sackers-Gothic-Std-Light.ttf'
+        font_name: 'fonts/ipam.ttf'
+        text: root.parent.hito_dbg
+        pos_hint: { "center_x": .95, "center_y": .80}
+    # current tile debug
+    Label:
+        font_size: dp(13)
+        #font_name: 'fonts/Sackers-Gothic-Std-Light.ttf'
+        font_name: 'fonts/ipam.ttf'
+        text: root.parent.current_tile_dbg
+        pos_hint: { "center_x": .95, "center_y": .75}
+    # grid debug
+    Label:
+        font_size: dp(13)
+        #font_name: 'fonts/Sackers-Gothic-Std-Light.ttf'
+        font_name: 'fonts/ipam.ttf'
+        text: root.parent.grid_dbg
+        pos_hint: { "center_x": .95, "center_y": .70}
 
 
     # hide button
@@ -26,7 +53,7 @@
         font_size: dp(13)
         font_name: 'fonts/Eurostile.ttf'
         text: root.parent.debug_button_title
-        pos_hint: { "center_x": .9, "center_y": .7}
+        pos_hint: { "center_x": .93, "center_y": .6}
         size_hint: .03, .05
         on_press: root.parent.on_debug_button_pressed()
         background_normal: ''

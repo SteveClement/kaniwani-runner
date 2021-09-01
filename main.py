@@ -28,7 +28,7 @@ class MainWidget(RelativeLayout):
     from transforms import transform, transform_2d, transform_perspective
     from user_actions import keyboard_closed, on_keyboard_up, on_keyboard_down, on_touch_up, on_touch_down
 
-    view = "2d"
+    view = "2ds"
 
     menu_widget = ObjectProperty()
     debug_widget = ObjectProperty()
@@ -81,12 +81,14 @@ class MainWidget(RelativeLayout):
     menu_title = StringProperty("KaniWani Runner \n 蟹鰐ランナー")
     menu_button_title = StringProperty(" START\nスタート")
 
-    debug_title = StringProperty("debug")
-    debug_button_title = StringProperty("hide")
+    debug_title = StringProperty("Debug")
+    debug_button_title = StringProperty("Hide")
 
     score_txt = StringProperty()
     hito_dbg = StringProperty()
-
+    grid_dbg = StringProperty()
+    current_tile_dbg = StringProperty()
+0
     bgm_begin = None
     vol = 0
 
