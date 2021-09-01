@@ -1,1 +1,3 @@
 kivy
+numpy
+wanikani_api
