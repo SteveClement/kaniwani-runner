@@ -89,6 +89,7 @@ class MainWidget(RelativeLayout):
     bgm_begin = None
     vol = 1
     mute = False
+    audio = False
 
     critical_items = []
     last_accuracy = 0
@@ -99,7 +100,7 @@ class MainWidget(RelativeLayout):
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
         # print("Init w: {} h: {}", str(self.width), str(self.height))
-        self.init_audio()
+        self.audio = self.init_audio()
         self.init_vertical_lines()
         self.init_horizontal_lines()
         self.init_tiles()
@@ -117,7 +118,10 @@ class MainWidget(RelativeLayout):
 
     def init_audio(self):
         self.bgm_begin = SoundLoader.load("bgm/Annex Japanese Trap.mp3")
-        self.bgm_begin.volume = self.vol
+        if self.bgm_begin is not None:
+            self.bgm_begin.volume = self.vol
+            return True
+        return False
 
     def init_hito(self):
         with self.canvas:
@@ -323,23 +327,28 @@ class MainWidget(RelativeLayout):
         else:
             # play game start sound if wanted
             pass
-        self.bgm_begin.play()
+        if self.audio: self.bgm_begin.play() #noqa
         self.reset_game()
         self.state_game_started = True
         self.menu_widget.opacity = 0
 
     def on_debug_button_pressed(self):
-        print("debug pressed")
+        old_vol = self.vol
         self.debug = False
         self.debug_widget.opacity = 0
-        for self.vol in np.arange(1, 0, -0.1):
-            self.bgm_begin.volume = float(self.vol)
-        self.bgm_begin.stop()
+        for self.vol in np.arange(start=1, stop=0, step=-0.1):
+            self.vol = float(round(self.vol,2))
+            if self.audio: self.bgm_begin.volume = self.vol # noqa
+        if self.audio: self.bgm_begin.stop() # noqa
+        self.vol = old_vol
 
     def play_game_over_sound(self):
         if self.state_game_over:
             pass
-            # self.sound_gameover.play()
+            # if audio: self.sound_gameover.play() # noqa
+
+    def end_game(self):
+        App.get_running_app().stop()
 
 
 class RunnerApp(App):

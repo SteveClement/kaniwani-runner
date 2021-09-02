@@ -13,11 +13,13 @@ def on_keyboard_down(self, keyboard, keycode, test, modifiers):
         self.current_speed_x = -self.SPEED_X
     elif keycode[1] == 'm':
         if self.mute:
-            self.bgm_begin.volume = self.vol
+            if self.audio: self.bgm_begin.volume = self.vol # noqa
             self.mute = False
         else:
-            self.bgm_begin.volume = 0
+            if self.audio: self.bgm_begin.volume = 0 # noqa
             self.mute = True
+    elif keycode[1] == 'q':
+        self.end_game()
     return True
 
 
