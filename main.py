@@ -22,7 +22,7 @@ class MainWidget(RelativeLayout):
     from transforms import transform, transform_2d, transform_perspective # noqa
     from user_actions import keyboard_closed, on_keyboard_up, on_keyboard_down, on_touch_up, on_touch_down # noqa
 
-    view = "2ds"
+    view = "2d"
     debug = True
     if debug: Builder.load_file("debug.kv") # noqa
 
@@ -86,6 +86,7 @@ class MainWidget(RelativeLayout):
     mute_dbg = StringProperty()
     scr_size_dbg = StringProperty()
     current_tile_dbg = StringProperty()
+    high_score_dbg = StringProperty()
 
     bgm_begin = None
     vol = 1
@@ -97,6 +98,8 @@ class MainWidget(RelativeLayout):
     srs_progress = []
     game_data = {'high_score': score, 'critical_items': critical_items, 'last_accuracy': last_accuracy, 'srs_progress': srs_progress} # noqa
     loaded_game_data = {}
+    high_score_dbg = "0"
+
 
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
@@ -179,6 +182,7 @@ class MainWidget(RelativeLayout):
         except OSError:
             print("save.dat does not exist, saving file.")
             self.game_data = self.save_game()
+        self.high_score_dbg = f"Score: {str(self.game_data['high_score'])}"
         return self.loaded_game_data
 
     def reset_game(self):
