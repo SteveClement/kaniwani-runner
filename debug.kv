@@ -39,13 +39,21 @@
         font_name: 'fonts/ipam.ttf'
         text: root.parent.current_tile_dbg
         pos_hint: { "center_x": .95, "center_y": .75}
+    # screen size debug
+    Label:
+        font_size: dp(13)
+        #font_name: 'fonts/Sackers-Gothic-Std-Light.ttf'
+        font_name: 'fonts/ipam.ttf'
+        text: root.parent.scr_size_dbg
+        pos_hint: { "center_x": .95, "center_y": .70}
     # grid debug
     Label:
         font_size: dp(13)
         #font_name: 'fonts/Sackers-Gothic-Std-Light.ttf'
         font_name: 'fonts/ipam.ttf'
-        text: root.parent.grid_dbg
-        pos_hint: { "center_x": .95, "center_y": .70}
+        #text: root.parent.grid_dbg
+        text: 'grid plc holder'
+        pos_hint: { "center_x": .95, "center_y": .65}
 
 
     # hide button

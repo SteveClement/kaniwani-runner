@@ -84,6 +84,7 @@ class MainWidget(RelativeLayout):
     hito_dbg = StringProperty()
     grid_dbg = StringProperty()
     mute_dbg = StringProperty()
+    scr_size_dbg = StringProperty()
     current_tile_dbg = StringProperty()
 
     bgm_begin = None
@@ -115,6 +116,7 @@ class MainWidget(RelativeLayout):
             self._keyboard.bind(on_key_up=self.on_keyboard_up)
 
         Clock.schedule_interval(self.update, 1.0 / 60)
+        self.scr_size_dbg = f"{str(Window.size)}"
 
     def init_audio(self):
         self.bgm_begin = SoundLoader.load("bgm/Annex Japanese Trap.mp3")
