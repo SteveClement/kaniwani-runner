@@ -1,32 +1,29 @@
-from kivy.config import Config
-from kivy.core.audio import SoundLoader
+import config # noqa
 
-Config.set('graphics', 'width', '900')
-Config.set('graphics', 'height', '400')
-
-from kivy.lang import Builder
-from kivy.uix.relativelayout import RelativeLayout
+import numpy as np
+import random
 
 from kivy import platform
-from kivy.core.window import Window
 from kivy.app import App
+from kivy.lang import Builder
+from kivy.core.audio import SoundLoader
+from kivy.core.window import Window
+from kivy.uix.relativelayout import RelativeLayout
 from kivy.graphics import Line, Quad, Triangle
 from kivy.graphics.context_instructions import Color
 from kivy.properties import Clock, NumericProperty, ObjectProperty, StringProperty
 
-import numpy as np
-import random
 
 debug = True
 
 Builder.load_file("menu.kv")
 
-if debug: Builder.load_file("debug.kv")
+if debug: Builder.load_file("debug.kv") # noqa
 
 
 class MainWidget(RelativeLayout):
-    from transforms import transform, transform_2d, transform_perspective
-    from user_actions import keyboard_closed, on_keyboard_up, on_keyboard_down, on_touch_up, on_touch_down
+    from transforms import transform, transform_2d, transform_perspective # noqa
+    from user_actions import keyboard_closed, on_keyboard_up, on_keyboard_down, on_touch_up, on_touch_down # noqa
 
     view = "2ds"
 
@@ -71,7 +68,7 @@ class MainWidget(RelativeLayout):
     HITO_HEIGHT = .1
     HITO_BASE_Y = 0.04
     hito = None
-    hito_coordinates = [(0, 0), (0,0), (0,0)]
+    hito_coordinates = [(0, 0), (0, 0), (0, 0)]
 
     state_game_over = False
     state_game_started = False
@@ -88,7 +85,7 @@ class MainWidget(RelativeLayout):
     hito_dbg = StringProperty()
     grid_dbg = StringProperty()
     current_tile_dbg = StringProperty()
-0
+
     bgm_begin = None
     vol = 0
 
@@ -149,7 +146,7 @@ class MainWidget(RelativeLayout):
             last_y = last_coordinates[1]+1
 
         for i in range(len(self.tiles_coordinates), self.NO_TILES):
-            r = random.randint(-1,1)
+            r = random.randint(-1, 1)
             self.tiles_coordinates.append((r, last_y))
             last_y += 1
 
@@ -198,7 +195,7 @@ class MainWidget(RelativeLayout):
     def check_hito_collision_with_tile(self, ti_x, ti_y):
         xmin, ymin = self.get_tile_coordinates(ti_x, ti_y)
         xmax, ymax = self.get_tile_coordinates(ti_x + 1, ti_y + 1)
-        for i in range(0,3):
+        for i in range(0, 3):
             px, py = self.hito_coordinates[i]
             if xmin <= px <= xmax and ymin <= py <= ymax:
                 return True
@@ -217,10 +214,10 @@ class MainWidget(RelativeLayout):
         return line_y
 
     def get_tile_coordinates(self, ti_x, ti_y):
-        ti_y = ti_y - self.current_y_loop
+        ti_y -= self.current_y_loop
         x = self.get_line_x_from_index(ti_x)
         y = self.get_line_y_from_index(ti_y)
-        return x,y
+        return x, y
 
     def update_tiles(self):
         for i in range(0, self.NO_TILES):
@@ -307,7 +304,7 @@ class MainWidget(RelativeLayout):
     def play_game_over_sound(self, dt):
         if self.state_game_over:
             pass
-            #self.sound_gameover.play()
+            # self.sound_gameover.play()
 
     def on_debug_button_pressed(self):
         print("debug pressed")

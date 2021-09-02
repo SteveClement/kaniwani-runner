@@ -1,4 +1,4 @@
-def transform(self, x, y):
+def transform(self, x, y) -> object:
     if self.view == "2d":
         return self.transform_2d(x,y)
     else:
