@@ -2,6 +2,7 @@ import config # noqa
 
 import numpy as np
 import random
+import pickle
 
 from kivy import platform
 from kivy.app import App
@@ -11,14 +12,10 @@ from kivy.core.window import Window
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.graphics import Line, Quad, Triangle
 from kivy.graphics.context_instructions import Color
-from kivy.properties import Clock, NumericProperty, ObjectProperty, StringProperty
+from kivy.properties import Clock, NumericProperty, ObjectProperty, StringProperty # noqa
 
-
-debug = True
 
 Builder.load_file("menu.kv")
-
-if debug: Builder.load_file("debug.kv") # noqa
 
 
 class MainWidget(RelativeLayout):
@@ -26,6 +23,8 @@ class MainWidget(RelativeLayout):
     from user_actions import keyboard_closed, on_keyboard_up, on_keyboard_down, on_touch_up, on_touch_down # noqa
 
     view = "2ds"
+    debug = True
+    if debug: Builder.load_file("debug.kv") # noqa
 
     menu_widget = ObjectProperty()
     debug_widget = ObjectProperty()
@@ -73,7 +72,7 @@ class MainWidget(RelativeLayout):
     state_game_over = False
     state_game_started = False
 
-    points = 0
+    score = 0
 
     menu_title = StringProperty("KaniWani Runner \n 蟹鰐ランナー")
     menu_button_title = StringProperty(" START\nスタート")
@@ -84,10 +83,18 @@ class MainWidget(RelativeLayout):
     score_txt = StringProperty()
     hito_dbg = StringProperty()
     grid_dbg = StringProperty()
+    mute_dbg = StringProperty()
     current_tile_dbg = StringProperty()
 
     bgm_begin = None
-    vol = 0
+    vol = 1
+    mute = False
+
+    critical_items = []
+    last_accuracy = 0
+    srs_progress = []
+    game_data = {'high_score': score, 'critical_items': critical_items, 'last_accuracy': last_accuracy, 'srs_progress': srs_progress} # noqa
+    loaded_game_data = {}
 
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
@@ -99,6 +106,7 @@ class MainWidget(RelativeLayout):
         self.generate_tiles_coordinates()
 
         self.init_hito()
+        self.load_game()
 
         if self.is_desktop():
             self._keyboard = Window.request_keyboard(self.keyboard_closed, self)
@@ -109,7 +117,7 @@ class MainWidget(RelativeLayout):
 
     def init_audio(self):
         self.bgm_begin = SoundLoader.load("bgm/Annex Japanese Trap.mp3")
-        self.bgm_begin.volume = 1
+        self.bgm_begin.volume = self.vol
 
     def init_hito(self):
         with self.canvas:
@@ -150,6 +158,23 @@ class MainWidget(RelativeLayout):
             self.tiles_coordinates.append((r, last_y))
             last_y += 1
 
+    def save_game(self):
+        with open('save.dat', 'wb') as save_file:
+            game_data = {'high_score': self.score, 'critical_items': self.critical_items, 'last_accuracy': self.last_accuracy, 'srs_progress': self.srs_progress} # noqa
+            pickle.dump(game_data, save_file)
+            save_file.close()
+            return game_data
+
+    def load_game(self):
+        try:
+            with open('save.dat', 'rb') as load_file:
+                self.loaded_game_data = pickle.load(load_file)
+                load_file.close()
+        except OSError:
+            print("save.dat does not exist, saving file.")
+            self.game_data = self.save_game()
+        return self.loaded_game_data
+
     def reset_game(self):
         self.current_offset_y = 0
         self.current_y_loop = 0
@@ -160,7 +185,7 @@ class MainWidget(RelativeLayout):
 #        self.pre_fill_tiles_coordinates()
         self.generate_tiles_coordinates()
         self.state_game_over = False
-        self.points = 0
+        self.score = 0
 
     @staticmethod
     def is_desktop():
@@ -229,10 +254,10 @@ class MainWidget(RelativeLayout):
             # 2    3
             #
             # 1    4
-            x1, y1 = self.transform(xmin, ymin)
-            x2, y2 = self.transform(xmin, ymax)
-            x3, y3 = self.transform(xmax, ymax)
-            x4, y4 = self.transform(xmax, ymin)
+            x1, y1 = self.transform(xmin, ymin) # noqa
+            x2, y2 = self.transform(xmin, ymax) # noqa
+            x3, y3 = self.transform(xmax, ymax) # noqa
+            x4, y4 = self.transform(xmax, ymin) # noqa
 
             tile.points = [x1, y1, x2, y2, x3, y3, x4, y4]
 
@@ -240,8 +265,8 @@ class MainWidget(RelativeLayout):
         start_index = -int(self.V_NO_LINES/2)+1
         for i in range(start_index, start_index+self.V_NO_LINES):
             line_x = self.get_line_x_from_index(i)
-            x1, y1 = self.transform(line_x, 0)
-            x2, y2 = self.transform(line_x, self.height)
+            x1, y1 = self.transform(line_x, 0) # noqa
+            x2, y2 = self.transform(line_x, self.height) # noqa
             self.vertical_lines[i].points = [x1, y1, x2, y2]
 
     def update_horizontal_lines(self):
@@ -253,8 +278,8 @@ class MainWidget(RelativeLayout):
 
         for i in range(0, self.H_NO_LINES):
             line_y = self.get_line_y_from_index(i)
-            x1, y1 = self.transform(xmin, line_y)
-            x2, y2 = self.transform(xmax, line_y)
+            x1, y1 = self.transform(xmin, line_y) # noqa
+            x2, y2 = self.transform(xmax, line_y) # noqa
             self.horizontal_lines[i].points = [x1, y1, x2, y2]
 
     def update(self, dt):
@@ -265,7 +290,6 @@ class MainWidget(RelativeLayout):
         self.update_hito()
 
         if not self.state_game_over and self.state_game_started:
-            print("running")
             speed_y = self.SPEED * self.height / 100
             self.current_offset_y += speed_y * time_factor
             speed_x = self.current_speed_x * self.width / 100
@@ -276,18 +300,21 @@ class MainWidget(RelativeLayout):
                 self.current_y_loop += 1
                 self.generate_tiles_coordinates()
                 self.score_txt = f"Score: {self.current_y_loop}"
-                self.points = self.current_y_loop
+                self.score = self.current_y_loop
 
-        if not self.state_game_over and self.points > 2:
+        if not self.state_game_over and self.score > 2:
+            self.save_game()
             self.state_game_over = True
             self.menu_title = "  Game Over!\nゲームオーバー"
             self.menu_button_title = "  Restart?\n再開しますか"
             self.menu_widget.opacity = 1
 
         if not self.check_hito_collision():
-            print("Touched a tile")
+            # print("Touched a tile")
+            pass
 
         self.hito_dbg = f"hito x:{int(self.current_offset_x)}"
+        self.mute_dbg = f"mute: {str(self.mute)}"
 
     def on_menu_button_pressed(self):
         if self.state_game_over:
@@ -301,18 +328,18 @@ class MainWidget(RelativeLayout):
         self.state_game_started = True
         self.menu_widget.opacity = 0
 
-    def play_game_over_sound(self, dt):
-        if self.state_game_over:
-            pass
-            # self.sound_gameover.play()
-
     def on_debug_button_pressed(self):
         print("debug pressed")
         self.debug = False
         self.debug_widget.opacity = 0
-        for vol in np.arange(1, 0, -0.1):
-            self.bgm_begin.volume = float(vol)
+        for self.vol in np.arange(1, 0, -0.1):
+            self.bgm_begin.volume = float(self.vol)
         self.bgm_begin.stop()
+
+    def play_game_over_sound(self):
+        if self.state_game_over:
+            pass
+            # self.sound_gameover.play()
 
 
 class RunnerApp(App):
