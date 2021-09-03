@@ -1,6 +1,6 @@
 import config # noqa
 
-import numpy as np
+# import numpy as np
 import random
 import pickle
 
@@ -13,7 +13,6 @@ from kivy.uix.relativelayout import RelativeLayout
 from kivy.graphics import Line, Quad, Triangle
 from kivy.graphics.context_instructions import Color
 from kivy.properties import Clock, NumericProperty, ObjectProperty, StringProperty # noqa
-
 
 Builder.load_file("menu.kv")
 
@@ -61,13 +60,13 @@ class MainWidget(RelativeLayout):
     NO_TILES = 2
     tiles_coordinates = []
 
-    SPEED_X = 3.0
-
     HITO_WIDTH = .1
     HITO_HEIGHT = .1
     HITO_BASE_Y = 0.04
     hito = None
     hito_coordinates = [(0, 0), (0, 0), (0, 0)]
+
+    SPEED_X = 3.0
 
     state_game_over = False
     state_game_started = False
@@ -96,7 +95,9 @@ class MainWidget(RelativeLayout):
     critical_items = []
     last_accuracy = 0
     srs_progress = []
-    game_data = {'high_score': score, 'critical_items': critical_items, 'last_accuracy': last_accuracy, 'srs_progress': srs_progress} # noqa
+    wanikani_key = key_v2 = "c882070c-b9c6-4894-b962-afab421d09af"
+    import wanikani
+    game_data = {'high_score': score, 'critical_items': critical_items, 'last_accuracy': last_accuracy, 'srs_progress': srs_progress, 'key_v2': key_v2} # noqa
     loaded_game_data = {}
 
     def __init__(self, **kwargs):
@@ -109,7 +110,7 @@ class MainWidget(RelativeLayout):
         self.generate_tiles_coordinates()
 
         self.init_hito()
-        self.load_game()
+        print(self.load_game())
 
         if self.is_desktop():
             self._keyboard = Window.request_keyboard(self.keyboard_closed, self)
@@ -180,7 +181,7 @@ class MainWidget(RelativeLayout):
         except OSError:
             print("save.dat does not exist, saving file.")
             self.game_data = self.save_game()
-        self.high_score_dbg = f"Score: {str(self.game_data['high_score'])}"
+        self.high_score_dbg = f"Score: {str(self.loaded_game_data['high_score'])}"
         return self.loaded_game_data
 
     def reset_game(self):
@@ -302,10 +303,16 @@ class MainWidget(RelativeLayout):
             speed_y = self.SPEED * self.height / 100
             self.current_offset_y += speed_y * time_factor
             speed_x = self.current_speed_x * self.width / 100
+            # TODO: 300/-300 want to be calculated
             if not self.current_offset_x > 300:
                 self.current_offset_x += speed_x * time_factor
             else:
                 self.current_offset_x = 300
+            if not self.current_offset_x < -300:
+                self.current_offset_x += speed_x * time_factor
+            else:
+                self.current_offset_x = -300
+
             spacing_y = self.H_LINES_SPACING * self.height
             while self.current_offset_y >= spacing_y:
                 self.current_offset_y -= spacing_y
