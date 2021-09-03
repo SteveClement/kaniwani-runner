@@ -6,7 +6,7 @@ def keyboard_closed(self):
     self._keyboard = None
 
 
-def on_keyboard_down(self, keyboard, keycode, test, modifiers):
+def on_keyboard_down(self, keyboard, keycode, test, modifiers): # noqa
     if keycode[1] == 'left':
         self.current_speed_x = self.SPEED_X
     elif keycode[1] == 'right':
@@ -16,14 +16,25 @@ def on_keyboard_down(self, keyboard, keycode, test, modifiers):
             if self.audio: self.bgm_begin.volume = self.vol # noqa
             self.mute = False
         else:
-            if self.audio: self.bgm_begin.volume = 0 # noqa
+            old_vol = self.vol
+            if self.audio:
+                # TODO: Put into fade functions
+                # for self.vol in np.arange(start=1, stop=0, step=-0.1):
+                #   self.vol = float(round(self.vol, 2))
+                #   if self.audio: self.bgm_begin.volume = self.vol # noqa
+                self.bgm_begin.volume = 0 # noqa
+            self.vol = old_vol
             self.mute = True
+    elif keycode[1] == 'd':
+        self.on_debug_button_pressed()
+    elif keycode[1] == 's':
+        self.on_menu_button_pressed()
     elif keycode[1] == 'q':
         self.end_game()
     return True
 
 
-def on_keyboard_up(self, keyboard, keycode):
+def on_keyboard_up(self, keyboard, keycode): # noqa
     self.current_speed_x = 0
     return True
 
@@ -37,5 +48,5 @@ def on_touch_down(self, touch):
     return super(RelativeLayout, self).on_touch_down(touch)
 
 
-def on_touch_up(self, touch):
+def on_touch_up(self, touch): # noqa
     self.current_speed_x = 0

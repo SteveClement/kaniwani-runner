@@ -22,7 +22,7 @@ class MainWidget(RelativeLayout):
     from transforms import transform, transform_2d, transform_perspective # noqa
     from user_actions import keyboard_closed, on_keyboard_up, on_keyboard_down, on_touch_up, on_touch_down # noqa
 
-    view = "2d"
+    view = "2ds"
     debug = True
     if debug: Builder.load_file("debug.kv") # noqa
 
@@ -215,6 +215,7 @@ class MainWidget(RelativeLayout):
         x3, y3 = self.transform(*self.hito_coordinates[2])
 
         self.hito.points = [x1, y1, x2, y2, x3, y3]
+        # print(self.hito.points)
 
     def check_hito_collision(self):
         for i in range(0, len(self.tiles_coordinates)):
@@ -301,7 +302,10 @@ class MainWidget(RelativeLayout):
             speed_y = self.SPEED * self.height / 100
             self.current_offset_y += speed_y * time_factor
             speed_x = self.current_speed_x * self.width / 100
-            self.current_offset_x += speed_x * time_factor
+            if not self.current_offset_x > 300:
+                self.current_offset_x += speed_x * time_factor
+            else:
+                self.current_offset_x = 300
             spacing_y = self.H_LINES_SPACING * self.height
             while self.current_offset_y >= spacing_y:
                 self.current_offset_y -= spacing_y
@@ -310,7 +314,7 @@ class MainWidget(RelativeLayout):
                 self.score_txt = f"Score: {self.current_y_loop}"
                 self.score = self.current_y_loop
 
-        if not self.state_game_over and self.score > 2:
+        if not self.state_game_over and self.score > 20:
             self.save_game()
             self.state_game_over = True
             self.menu_title = "  Game Over!\nゲームオーバー"
@@ -337,14 +341,12 @@ class MainWidget(RelativeLayout):
         self.menu_widget.opacity = 0
 
     def on_debug_button_pressed(self):
-        old_vol = self.vol
-        self.debug = False
-        self.debug_widget.opacity = 0
-        for self.vol in np.arange(start=1, stop=0, step=-0.1):
-            self.vol = float(round(self.vol, 2))
-            if self.audio: self.bgm_begin.volume = self.vol # noqa
-        if self.audio: self.bgm_begin.stop() # noqa
-        self.vol = old_vol
+        if self.debug:
+            self.debug = False
+            self.debug_widget.opacity = 0
+        else:
+            self.debug = True
+            self.debug_widget.opacity = 1
 
     def play_game_over_sound(self):
         if self.state_game_over:
