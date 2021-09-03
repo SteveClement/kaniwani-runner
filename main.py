@@ -98,8 +98,6 @@ class MainWidget(RelativeLayout):
     srs_progress = []
     game_data = {'high_score': score, 'critical_items': critical_items, 'last_accuracy': last_accuracy, 'srs_progress': srs_progress} # noqa
     loaded_game_data = {}
-    high_score_dbg = "0"
-
 
     def __init__(self, **kwargs):
         super(MainWidget, self).__init__(**kwargs)
@@ -333,7 +331,7 @@ class MainWidget(RelativeLayout):
         else:
             # play game start sound if wanted
             pass
-        if self.audio: self.bgm_begin.play() #noqa
+        if self.audio: self.bgm_begin.play() # noqa
         self.reset_game()
         self.state_game_started = True
         self.menu_widget.opacity = 0
@@ -343,7 +341,7 @@ class MainWidget(RelativeLayout):
         self.debug = False
         self.debug_widget.opacity = 0
         for self.vol in np.arange(start=1, stop=0, step=-0.1):
-            self.vol = float(round(self.vol,2))
+            self.vol = float(round(self.vol, 2))
             if self.audio: self.bgm_begin.volume = self.vol # noqa
         if self.audio: self.bgm_begin.stop() # noqa
         self.vol = old_vol
@@ -353,7 +351,8 @@ class MainWidget(RelativeLayout):
             pass
             # if audio: self.sound_gameover.play() # noqa
 
-    def end_game(self):
+    @staticmethod
+    def end_game():
         App.get_running_app().stop()
 
 
