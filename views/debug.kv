@@ -1,4 +1,5 @@
-#:kivy 1.0.9
+#:kivy 1.10.1
+
 <DebugWidget>:
     canvas.before:
         Color:
@@ -33,6 +34,7 @@
         font_name: 'fonts/ipam.ttf'
         text: root.parent.mute_dbg
         pos_hint: { "center_x": .95, "center_y": .80}
+
     # current tile debug
     Label:
         font_size: dp(13)
@@ -40,6 +42,7 @@
         font_name: 'fonts/ipam.ttf'
         text: root.parent.current_tile_dbg
         pos_hint: { "center_x": .95, "center_y": .75}
+
     # screen size debug
     Label:
         font_size: dp(13)
@@ -47,6 +50,7 @@
         font_name: 'fonts/ipam.ttf'
         text: root.parent.scr_size_dbg
         pos_hint: { "center_x": .95, "center_y": .70}
+
     # grid debug
     Label:
         font_size: dp(13)
@@ -55,6 +59,7 @@
         #text: root.parent.grid_dbg
         text: 'grid plc holder'
         pos_hint: { "center_x": .95, "center_y": .65}
+
     # hgh score debug
     Label:
         font_size: dp(13)

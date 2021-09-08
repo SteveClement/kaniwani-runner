@@ -1,4 +1,4 @@
-import config # noqa
+import kv_config # noqa
 
 # import numpy as np
 import random
@@ -14,7 +14,7 @@ from kivy.graphics import Line, Quad, Triangle
 from kivy.graphics.context_instructions import Color
 from kivy.properties import Clock, NumericProperty, ObjectProperty, StringProperty # noqa
 
-Builder.load_file("menu.kv")
+Builder.load_file("views/menu.kv")
 
 
 class MainWidget(RelativeLayout):
@@ -23,7 +23,7 @@ class MainWidget(RelativeLayout):
 
     view = "2ds"
     debug = True
-    if debug: Builder.load_file("debug.kv") # noqa
+    if debug: Builder.load_file("views/debug.kv") # noqa
 
     menu_widget = ObjectProperty()
     debug_widget = ObjectProperty()
@@ -96,7 +96,7 @@ class MainWidget(RelativeLayout):
     last_accuracy = 0
     srs_progress = []
     wanikani_key = key_v2 = "c882070c-b9c6-4894-b962-afab421d09af"
-    import wanikani
+    import wanikani # noqa
     game_data = {'high_score': score, 'critical_items': critical_items, 'last_accuracy': last_accuracy, 'srs_progress': srs_progress, 'key_v2': key_v2} # noqa
     loaded_game_data = {}
 
@@ -355,6 +355,15 @@ class MainWidget(RelativeLayout):
             self.debug = True
             self.debug_widget.opacity = 1
 
+    def on_config_button_pressed(self, state):
+        if state:
+            print("saving config")
+            self.debug_widget.opacity = 0
+
+        else:
+            print("cancel pressed")
+            self.debug_widget.opacity = 0
+
     def play_game_over_sound(self):
         if self.state_game_over:
             pass
@@ -369,4 +378,5 @@ class RunnerApp(App):
     pass
 
 
-RunnerApp().run()
+if __name__ == '__main__':
+    RunnerApp().run()
