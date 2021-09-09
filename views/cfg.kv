@@ -10,15 +10,13 @@
         font_size: dp(60)
         #font_name: 'fonts/Sackers-Gothic-Std-Light.ttf'
         font_name: 'fonts/ipam.ttf'
-        #text: root.parent.config_title
-        text: "Config"
+        text: root.parent.config_title
         pos_hint: { "center_x": .5, "center_y": .6}
     Button:
         font_size: dp(30)
 #        font_name: 'fonts/Eurostile.ttf'
         font_name: 'fonts/ipam.ttf'
-        #text: root.parent.config_button_title
-        text: "Save"
+        text: root.parent.config_save_btn_title
         pos_hint: { "center_x": .5, "center_y": .3}
         size_hint: .2, .15
         on_press: root.parent.on_config_button_pressed(True)
@@ -29,8 +27,7 @@
         font_size: dp(30)
 #        font_name: 'fonts/Eurostile.ttf'
         font_name: 'fonts/ipam.ttf'
-        #text: root.parent.config_button_title
-        text: "Cancel"
+        text: root.parent.config_cancel_btn_title
         pos_hint: { "center_x": .5, "center_y": .3}
         size_hint: .2, .15
         on_press: root.parent.on_config_button_pressed(False)

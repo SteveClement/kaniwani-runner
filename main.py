@@ -1,6 +1,5 @@
 import kv_config # noqa
 
-# import numpy as np
 import random
 import pickle
 
@@ -27,6 +26,7 @@ class MainWidget(RelativeLayout):
 
     menu_widget = ObjectProperty()
     debug_widget = ObjectProperty()
+    config_widget = ObjectProperty()
 
     perspective_point_x = NumericProperty(0)
     perspective_point_y = NumericProperty(0)
@@ -79,6 +79,10 @@ class MainWidget(RelativeLayout):
     debug_title = StringProperty("Debug")
     debug_button_title = StringProperty("Hide")
 
+    config_title = StringProperty("Config")
+    config_save_btn_title = StringProperty("Save")
+    config_cancel_btn_title = StringProperty("Cancel")
+
     score_txt = StringProperty()
     hito_dbg = StringProperty()
     grid_dbg = StringProperty()
@@ -96,7 +100,7 @@ class MainWidget(RelativeLayout):
     last_accuracy = 0
     srs_progress = []
     wanikani_key = key_v2 = "c882070c-b9c6-4894-b962-afab421d09af"
-    import wanikani # noqa
+    # import wanikani # noqa
     game_data = {'high_score': score, 'critical_items': critical_items, 'last_accuracy': last_accuracy, 'srs_progress': srs_progress, 'key_v2': key_v2} # noqa
     loaded_game_data = {}
 
