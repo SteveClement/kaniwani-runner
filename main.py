@@ -13,7 +13,11 @@ from kivy.graphics import Line, Quad, Triangle
 from kivy.graphics.context_instructions import Color
 from kivy.properties import Clock, NumericProperty, ObjectProperty, StringProperty # noqa
 
+from tools.dbg import dprint
+
+# Builder.load_file("views/runner.kv")
 Builder.load_file("views/menu.kv")
+#Builder.load_file("views/config.kv")
 
 
 class MainWidget(RelativeLayout):
@@ -105,6 +109,7 @@ class MainWidget(RelativeLayout):
     loaded_game_data = {}
 
     def __init__(self, **kwargs):
+        dprint(f"dbg: Entered __init__", self.debug)
         super(MainWidget, self).__init__(**kwargs)
         # print("Init w: {} h: {}", str(self.width), str(self.height))
         self.audio = self.init_audio()
@@ -125,6 +130,7 @@ class MainWidget(RelativeLayout):
         self.scr_size_dbg = f"{str(Window.size)}"
 
     def init_audio(self):
+        dprint(f"dbg: Entered init_audio", self.debug)
         self.bgm_begin = SoundLoader.load("bgm/Annex Japanese Trap.mp3")
         if self.bgm_begin is not None:
             self.bgm_begin.volume = self.vol
@@ -132,11 +138,13 @@ class MainWidget(RelativeLayout):
         return False
 
     def init_hito(self):
+        dprint(f"dbg: Entered init_hito", self.debug)
         with self.canvas:
             Color(0, 1, 0)
             self.hito = Triangle()
 
     def init_tiles(self):
+        dprint(f"dbg: Entered init_tiles", self.debug)
         with self.canvas:
             Color(1, 1, 1)
             for i in range(0, self.NO_TILES):
@@ -149,6 +157,7 @@ class MainWidget(RelativeLayout):
                 self.vertical_lines.append(Line())
 
     def init_horizontal_lines(self):
+        dprint(f"dbg: Entered init_horizontal_lines", self.debug)
         with self.canvas:
             Color(1, 1, 1)
             for i in range(0, self.H_NO_LINES):
@@ -383,4 +392,5 @@ class RunnerApp(App):
 
 
 if __name__ == '__main__':
+    print(f"dbg: Entering __main__")
     RunnerApp().run()
