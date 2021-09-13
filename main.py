@@ -17,7 +17,7 @@ from tools.dbg import dprint
 
 # Builder.load_file("views/runner.kv")
 Builder.load_file("views/menu.kv")
-#Builder.load_file("views/config.kv")
+# Builder.load_file("views/config.kv")
 
 
 class MainWidget(RelativeLayout):
@@ -391,6 +391,10 @@ class RunnerApp(App):
     pass
 
 
-if __name__ == '__main__':
+def main():
     print(f"dbg: Entering __main__")
     RunnerApp().run()
+
+
+if __name__ == '__main__':
+    main()
