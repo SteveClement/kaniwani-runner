@@ -9,6 +9,7 @@ from kivy.lang import Builder
 from kivy.core.audio import SoundLoader
 from kivy.core.window import Window
 from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.label import Label
 from kivy.graphics import Line, Quad, Triangle
 from kivy.graphics.context_instructions import Color
 from kivy.properties import Clock, NumericProperty, ObjectProperty, StringProperty # noqa
@@ -119,6 +120,7 @@ class MainWidget(RelativeLayout):
         self.init_tiles()
         self.generate_tiles_coordinates()
 
+        self.init_test()
         self.init_hito()
         print(self.load_game())
 
@@ -137,6 +139,12 @@ class MainWidget(RelativeLayout):
             self.bgm_begin.volume = self.vol
             return True
         return False
+
+    def init_test(self):
+        dprint(f"dbg: loading text test")
+        with self.canvas:
+            Color(1, 0, 0, 0)
+            self.test = Label(text='Hello [ref=world]World[/ref]', markup=True)
 
     def init_hito(self):
         dprint(f"dbg: Entered init_hito", self.debug)
