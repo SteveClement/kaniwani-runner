@@ -182,7 +182,7 @@ class MainWidget(RelativeLayout):
 
     def save_game(self):
         with open('save.dat', 'wb') as save_file:
-            save_data = []
+            save_data = [] # noqa
             game_data = {'high_score': self.score, 'critical_items': self.critical_items, 'last_accuracy': self.last_accuracy, 'srs_progress': self.srs_progress} # noqa
             # save_data[0] -> game_data
             # save_data[1] -> WK Key
@@ -193,7 +193,7 @@ class MainWidget(RelativeLayout):
             return save_data
 
     def load_game(self):
-        loaded_save_data = []
+        loaded_save_data = [] # noqa
         try:
             with open('save.dat', 'rb') as load_file:
                 loaded_save_data = pickle.load(load_file)
