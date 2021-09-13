@@ -106,6 +106,7 @@ class MainWidget(RelativeLayout):
     wanikani_key = key_v2 = "c882070c-b9c6-4894-b962-afab421d09af"
     # import wanikani # noqa
     game_data = {'high_score': score, 'critical_items': critical_items, 'last_accuracy': last_accuracy, 'srs_progress': srs_progress, 'key_v2': key_v2} # noqa
+    game_version = "v1"
     loaded_game_data = {}
 
     def __init__(self, **kwargs):
@@ -183,7 +184,10 @@ class MainWidget(RelativeLayout):
         with open('save.dat', 'wb') as save_file:
             save_data = []
             game_data = {'high_score': self.score, 'critical_items': self.critical_items, 'last_accuracy': self.last_accuracy, 'srs_progress': self.srs_progress} # noqa
-            save_data = [game_data, self.wanikani_key]
+            # save_data[0] -> game_data
+            # save_data[1] -> WK Key
+            # save_data[2] -> game_version
+            save_data = [game_data, self.wanikani_key, self.game_version]
             pickle.dump(save_data, save_file)
             save_file.close()
             return save_data
@@ -195,10 +199,12 @@ class MainWidget(RelativeLayout):
                 loaded_save_data = pickle.load(load_file)
                 load_file.close()
         except OSError:
-            print("save.dat does not exist, saving file.")
-            # FIXME:  IndexError: list index out of range
-            self.game_data = self.save_game()[0]
-        self.loaded_game_data = loaded_save_data[0]
+            loaded_save_data = self.save_game()
+        try:
+            self.loaded_game_data = loaded_save_data[0]
+        except (IndexError, KeyError):
+            loaded_save_data = self.save_game()
+            self.loaded_game_data = loaded_save_data[0]
         self.high_score_dbg = f"Score: {str(self.loaded_game_data['high_score'])}"
         return self.loaded_game_data
 
