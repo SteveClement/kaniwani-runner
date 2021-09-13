@@ -3,7 +3,7 @@ from time import time
 
 # TODO: picklize all the things
 # TODO: cache data, eg. radicals, timestamp - check if older than 24h
-# Make a sync screen
+# TODO: Make a sync screen
 
 wanikani_key = key_v2 = "c882070c-b9c6-4894-b962-afab421d09af"
 v2_api_key = wanikani_key

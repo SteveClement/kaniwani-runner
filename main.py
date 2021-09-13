@@ -181,19 +181,24 @@ class MainWidget(RelativeLayout):
 
     def save_game(self):
         with open('save.dat', 'wb') as save_file:
+            save_data = []
             game_data = {'high_score': self.score, 'critical_items': self.critical_items, 'last_accuracy': self.last_accuracy, 'srs_progress': self.srs_progress} # noqa
-            pickle.dump(game_data, save_file)
+            save_data = [game_data, self.wanikani_key]
+            pickle.dump(save_data, save_file)
             save_file.close()
-            return game_data
+            return save_data
 
     def load_game(self):
+        loaded_save_data = []
         try:
             with open('save.dat', 'rb') as load_file:
-                self.loaded_game_data = pickle.load(load_file)
+                loaded_save_data = pickle.load(load_file)
                 load_file.close()
         except OSError:
             print("save.dat does not exist, saving file.")
-            self.game_data = self.save_game()
+            # FIXME:  IndexError: list index out of range
+            self.game_data = self.save_game()[0]
+        self.loaded_game_data = loaded_save_data[0]
         self.high_score_dbg = f"Score: {str(self.loaded_game_data['high_score'])}"
         return self.loaded_game_data
 
